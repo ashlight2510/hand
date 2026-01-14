@@ -494,9 +494,51 @@
       margin: 16px auto;
         text-align: center;
 }
+    .lang-switch {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      display: inline-flex;
+      gap: 0;
+      padding: 3px;
+      border-radius: 999px;
+      background: rgba(17, 18, 23, 0.95);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      border: 1px solid rgba(141, 247, 181, 0.2);
+    }
+    .lang-switch button {
+      border: none;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-width: 44px;
+      text-align: center;
+      letter-spacing: 0.02em;
+    }
+    .lang-switch button.active {
+      background: rgba(141, 247, 181, 0.3);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(141, 247, 181, 0.4);
+    }
+    .lang-switch button:not(.active):hover {
+      background: rgba(141, 247, 181, 0.1);
+      color: rgba(255, 255, 255, 0.9);
+    }
   </style>
 </head>
-  <body><div class="shell">
+  <body>
+    <div class="lang-switch" role="tablist" aria-label="Language switcher">
+      <button type="button" data-lang="ko" class="active">KR</button>
+      <button type="button" data-lang="en">EN</button>
+    </div>
+    <div class="shell">
       <header>
         <div class="logo">
           <span>✋ 손바닥 썰 푼다</span>
@@ -506,8 +548,8 @@
       </header>
 
       <section class="panel">
-        <h1>사진 한 장으로 보는 손금 흐름</h1>
-        <p class="sub">
+        <h1 data-i18n="title">사진 한 장으로 보는 손금 흐름</h1>
+        <p class="sub" data-i18n="subtitle">
           손바닥 한 장으로 알아보는 당신의 성향. 지능선, 감정선, 생명선을
           기반으로 개인화된 해석을 3초 만에 전달합니다.
         </p>
@@ -520,7 +562,7 @@
             <div style="font-size: 38px">📤</div>
             <div>손바닥 사진을 끌어놓거나 탭해서 업로드</div>
             <div class="hint">카메라도 바로 사용 가능 · JPG/PNG 권장</div>
-            <button class="cta" type="button" id="triggerUpload">
+            <button class="cta" type="button" id="triggerUpload" data-i18n="uploadBtn">
               사진 선택
             </button>
           </label>
@@ -559,8 +601,8 @@
             <div class="meta" id="metaChips"></div>
             <div class="cards" id="cards"></div>
             <div class="share">
-              <button class="cta" type="button" id="shareBtn">결과 공유</button>
-              <button class="ghost" type="button" id="copyBtn">
+              <button class="cta" type="button" id="shareBtn" data-i18n="shareBtn">결과 공유</button>
+              <button class="ghost" type="button" id="copyBtn" data-i18n="copyBtn">
                 링크 복사
               </button>
               <span class="hint" id="shareStatus"></span>
@@ -586,6 +628,95 @@
     </div>
 
     <script type="module">
+      /* i18n */
+      const translations = {
+        ko: {
+          metaTitle: "손바닥 썰 푼다 - 사진 한 장으로 보는 손금 성향 분석",
+          metaDescription: "손바닥 사진만 올리면 3초 만에 손금 성향을 분석해주는 무료 웹 테스트. 지능선, 감정선, 생명선을 기반으로 당신의 성향을 카드로 전달합니다.",
+          title: "사진 한 장으로 보는 손금 흐름",
+          subtitle: "손바닥 한 장으로 알아보는 당신의 성향. 지능선, 감정선, 생명선을 기반으로 개인화된 해석을 3초 만에 전달합니다.",
+          uploadBtn: "사진 선택",
+          shareBtn: "결과 공유",
+          copyBtn: "링크 복사"
+        },
+        en: {
+          metaTitle: "Hand Reading - Palm Reading Analysis from One Photo",
+          metaDescription: "Free web test that analyzes your palm reading personality in 3 seconds just by uploading a palm photo. Delivers your personality through cards based on intelligence line, emotion line, and life line.",
+          title: "Palm Reading Flow from One Photo",
+          subtitle: "Discover your personality from one palm photo. Delivers personalized interpretation in 3 seconds based on intelligence line, emotion line, and life line.",
+          uploadBtn: "Select Photo",
+          shareBtn: "Share Result",
+          copyBtn: "Copy Link"
+        }
+      };
+      const defaultLang = "en";
+      const supportedLangs = ["ko", "en"];
+      let currentLang = defaultLang;
+      function t(key, vars = {}) {
+        const langTable = translations[currentLang] || translations.ko;
+        const template = langTable?.[key] ?? translations.ko?.[key] ?? key;
+        if (typeof template !== "string") return template;
+        return template.replace(/\{(\w+)\}/g, (_, token) =>
+          vars[token] !== undefined ? vars[token] : `{${token}}`
+        );
+      }
+      function applyTranslations() {
+        document.title = t("metaTitle");
+        const desc = document.querySelector('meta[name="description"]');
+        if (desc) desc.setAttribute("content", t("metaDescription"));
+        document.documentElement.lang = currentLang;
+        document.querySelectorAll("[data-i18n]").forEach((el) => {
+          el.textContent = t(el.dataset.i18n);
+        });
+      }
+      function setLang(lang, options = {}) {
+        const nextLang = translations[lang] ? lang : defaultLang;
+        currentLang = nextLang;
+        document.documentElement.lang = nextLang;
+        localStorage.setItem("preferredLang", nextLang);
+        document.querySelectorAll(".lang-switch button").forEach((button) => {
+          button.classList.toggle("active", button.dataset.lang === nextLang);
+        });
+        applyTranslations();
+        if (options.updateUrl) {
+          const url = new URL(window.location.href);
+          url.searchParams.set("lang", nextLang);
+          window.history.replaceState({}, "", url);
+        }
+      }
+      function getRegionPreferredLang(fallback = defaultLang) {
+        const intlLocale =
+          typeof Intl === "object" && typeof Intl.DateTimeFormat === "function"
+            ? Intl.DateTimeFormat().resolvedOptions().locale
+            : "";
+        const sources = [
+          ...(navigator.languages || []),
+          navigator.language,
+          navigator.userLanguage,
+          intlLocale,
+        ]
+          .filter(Boolean)
+          .map((locale) => locale.toLowerCase());
+        const hasKorean = sources.some((locale) => locale.startsWith("ko"));
+        return hasKorean ? "ko" : fallback;
+      }
+
+      function detectLang() {
+        const params = new URLSearchParams(window.location.search);
+        const paramLang = params.get("lang");
+        if (supportedLangs.includes(paramLang)) return paramLang;
+        const stored = localStorage.getItem("preferredLang");
+        if (supportedLangs.includes(stored)) return stored;
+        const candidate = getRegionPreferredLang(defaultLang);
+        return supportedLangs.includes(candidate) ? candidate : defaultLang;
+      }
+      document.querySelectorAll(".lang-switch button").forEach((button) => {
+        button.addEventListener("click", () => {
+          setLang(button.dataset.lang, { updateUrl: true });
+        });
+      });
+      setLang(detectLang(), { updateUrl: false });
+
       import {
         FilesetResolver,
         HandLandmarker,
