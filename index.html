@@ -708,6 +708,12 @@
           copyLifeStaminaSteady: "끊김 없는 생명선 → 꾸준함·장기전 강점",
           copyLifeBursty: "짧거나 얕은 생명선 → 몰입 후 휴식 패턴",
           copyLifeResilient: "선명하고 깊은 생명선 → 체력·회복력 상위",
+          // Meta labels
+          metaRatio: "비율",
+          metaBrightness: "밝기",
+          metaFile: "파일",
+          metaTexture: "질감",
+          oneLineLabel: "한 줄로",
         },
         en: {
           metaTitle: "Hand Reading - Palm Reading Analysis from One Photo",
@@ -785,6 +791,12 @@
           copyLifeStaminaSteady: "Unbroken life line → Consistency·long-term strength",
           copyLifeBursty: "Short or shallow life line → Immersion then rest pattern",
           copyLifeResilient: "Clear and deep life line → Top stamina·recovery",
+          // Meta labels
+          metaRatio: "Ratio",
+          metaBrightness: "Brightness",
+          metaFile: "File",
+          metaTexture: "Texture",
+          oneLineLabel: "In one line",
         }
       };
       const defaultLang = "ko";
@@ -1292,13 +1304,12 @@
         const tFunc = window.t || ((key) => key);
         const typeNames = getTypeNames();
         const typeCopy = getTypeCopy();
-        const isKo = currentLang === "ko";
         
         metaChips.innerHTML = "";
-        const ratioLabel = isKo ? "비율" : "Ratio";
-        const brightnessLabel = isKo ? "밝기" : "Brightness";
-        const fileLabel = isKo ? "파일" : "File";
-        const textureLabel = isKo ? "질감" : "Texture";
+        const ratioLabel = tFunc("metaRatio");
+        const brightnessLabel = tFunc("metaBrightness");
+        const fileLabel = tFunc("metaFile");
+        const textureLabel = tFunc("metaTexture");
         const chipData = [
           `${ratioLabel}: ${meta.aspect.toFixed(2)}:1`,
           `${brightnessLabel}: ${meta.brightness}`,
@@ -1331,7 +1342,7 @@
         const summaryTag = tFunc("tagSummary");
         const summaryTitle = tFunc("summaryTitle");
         const summaryAction = tFunc("summaryAction");
-        const oneLineLabel = isKo ? "한 줄로" : "In one line";
+        const oneLineLabel = tFunc("oneLineLabel");
         summary.innerHTML = `
         <h3><span class="pill">${summaryTag}</span> ${summaryTitle}</h3>
         <p>${typeNames[types.form]} + ${typeNames[types.head]} + ${
