@@ -820,7 +820,7 @@
         });
         applyTranslations();
         // Re-render result if exists
-        if (window.lastMeta && window.lastTypes && window.lastInsights) {
+        if (window.lastMeta && window.lastTypes && window.lastInsights && typeof renderResult === "function") {
           renderResult(window.lastMeta, window.lastTypes, window.lastInsights);
         }
         if (options.updateUrl) {
@@ -850,6 +850,11 @@
         });
       });
       setLang(detectLang(), { updateUrl: false });
+      
+      // Make t() function and currentLang globally available
+      window.t = t;
+      window.currentLang = currentLang;
+      window.setLang = setLang;
 
       import {
         FilesetResolver,
